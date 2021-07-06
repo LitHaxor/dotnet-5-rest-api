@@ -33,3 +33,11 @@ dotnet new webapi
 ```
 dotnet dev-certs https --trust
 ```
+
+## Entity
+
+- create record type data
+
+* Use for immutable objects
+* with-expression support
+* value-based equality support
