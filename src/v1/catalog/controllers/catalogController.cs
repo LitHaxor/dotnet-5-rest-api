@@ -26,10 +26,10 @@ namespace Catalog.Controllers
         }
 
         [HttpGet("{id}")]
-        public Item GetItem(Guid id)
+        public ActionResult<Item> GetItem(Guid id)
         {
             var item = this.catalogServices.GetItem(id);
-            return item;
+            return item != null ? item : NotFound();
         }
     }
 }
