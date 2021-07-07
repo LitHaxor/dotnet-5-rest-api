@@ -33,5 +33,20 @@ namespace Catalog.Controllers
             var item = this.catalogServices.GetItem(id);
             return item != null ? item.AsDto() : NotFound();
         }
+
+        [HttpPost]
+        public ActionResult<ItemDto> CreateItem(createItemDto itemDto)
+        {
+            Item item = new()
+            {
+                Id = Guid.NewGuid(),
+                name = itemDto.name,
+                price = itemDto.price,
+                createdDate = DateTimeOffset.UtcNow,
+            };
+            this.catalogServices.CreateItem(item);
+
+            return CreatedAtAction(nameof(GetItem), new { id = item.Id }, item.AsDto());
+        }
     }
 }
