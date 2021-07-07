@@ -23,21 +23,15 @@ namespace Catalog.Controllers
         [HttpGet]
         public IEnumerable<ItemDto> GetItems()
         {
-            var items = this.catalogServices.GetItems().Select(item => new ItemDto
-            {
-                Id = item.Id,
-                name = item.name,
-                price = item.price,
-                createdDate = item.createdDate,
-            });
+            var items = this.catalogServices.GetItems().Select(item => item.AsDto());
             return items;
         }
 
         [HttpGet("{id}")]
-        public ActionResult<Item> GetItem(Guid id)
+        public ActionResult<ItemDto> GetItem(Guid id)
         {
             var item = this.catalogServices.GetItem(id);
-            return item != null ? item : NotFound();
+            return item != null ? item.AsDto() : NotFound();
         }
     }
 }
