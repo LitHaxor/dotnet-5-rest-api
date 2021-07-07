@@ -67,5 +67,18 @@ namespace Catalog.Controllers
             // return NoContent();
             return updatedItem.AsDto();
         }
+
+
+        [HttpDelete("{id}")]
+        public ActionResult DeleteItem(Guid id)
+        {
+            var existingItem = this.catalogServices.GetItem(id);
+            if (existingItem is null)
+            {
+                return NotFound();
+            }
+            this.catalogServices.DeleteItem(existingItem.Id);
+            return NoContent();
+        }
     }
 }

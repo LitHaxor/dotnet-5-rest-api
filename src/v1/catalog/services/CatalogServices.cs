@@ -61,5 +61,11 @@ namespace Catalog.Services
             var index = items.FindIndex(e => e.Id == item.Id);
             this.items[index] = item;
         }
+
+        public void DeleteItem(Guid id)
+        {
+            var index = this.items.FindIndex(e => e.Id == id);
+            this.items.RemoveAt(index);
+        }
     }
 }
