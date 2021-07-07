@@ -3,7 +3,8 @@ using Microsoft.AspNetCore.Mvc;
 using Catalog.Services;
 using System.Collections.Generic;
 using Catalog.Entities;
-
+using System.Linq;
+using Catalog.Dtos;
 
 namespace Catalog.Controllers
 {
@@ -20,9 +21,16 @@ namespace Catalog.Controllers
 
 
         [HttpGet]
-        public IEnumerable<Item> GetItems()
+        public IEnumerable<ItemDto> GetItems()
         {
-            return this.catalogServices.GetItems();
+            var items = this.catalogServices.GetItems().Select(item => new ItemDto
+            {
+                Id = item.Id,
+                name = item.name,
+                price = item.price,
+                createdDate = item.createdDate,
+            });
+            return items;
         }
 
         [HttpGet("{id}")]
