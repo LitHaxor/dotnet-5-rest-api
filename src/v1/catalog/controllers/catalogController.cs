@@ -48,5 +48,24 @@ namespace Catalog.Controllers
 
             return CreatedAtAction(nameof(GetItem), new { id = item.Id }, item.AsDto());
         }
+
+        [HttpPut("{id}")]
+        public ActionResult<ItemDto> UpdateItem(Guid id, UpdateItemDto itemDto)
+        {
+            var existingItem = this.catalogServices.GetItem(id);
+            if (existingItem is null)
+            {
+                return NotFound();
+            }
+
+            Item updatedItem = existingItem with
+            {
+                name = itemDto.name,
+                price = itemDto.price,
+            };
+            this.catalogServices.UpdateItem(updatedItem);
+            // return NoContent();
+            return updatedItem.AsDto();
+        }
     }
 }

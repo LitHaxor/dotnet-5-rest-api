@@ -6,9 +6,9 @@ namespace Catalog.Entities
     {
         public Guid Id { get; init; }
 
-        public string name { get; set; }
+        public string name { get; init; }
 
-        public decimal price { get; set; }
+        public decimal price { get; init; }
 
         public DateTimeOffset createdDate { get; init; }
 

@@ -43,17 +43,23 @@ namespace Catalog.Services
 
         public IEnumerable<Item> GetItems()
         {
-            return items;
+            return this.items;
         }
 
         public Item GetItem(Guid id)
         {
-            return items.Where(item => item.Id == id).SingleOrDefault();
+            return this.items.Where(item => item.Id == id).SingleOrDefault();
         }
 
         public void CreateItem(Item item)
         {
-            items.Add(item);
+            this.items.Add(item);
+        }
+
+        public void UpdateItem(Item item)
+        {
+            var index = items.FindIndex(e => e.Id == item.Id);
+            this.items[index] = item;
         }
     }
 }
