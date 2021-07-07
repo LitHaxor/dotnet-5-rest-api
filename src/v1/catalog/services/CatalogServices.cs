@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using Catalog.Entities;
 
+
 namespace Catalog.Services
 {
-    class CatalogServices
+
+    class CatalogServices : ICatalogServices
     {
         private readonly List<Item> items = new()
         {

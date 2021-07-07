@@ -11,11 +11,11 @@ namespace Catalog.Controllers
     [Route("v1/items")]
     public class CatalogController : ControllerBase
     {
-        private readonly CatalogServices catalogServices;
+        private readonly ICatalogServices catalogServices;
 
-        public CatalogController()
+        public CatalogController(ICatalogServices catalogServices)
         {
-            catalogServices = new CatalogServices();
+            this.catalogServices = catalogServices;
         }
 
 

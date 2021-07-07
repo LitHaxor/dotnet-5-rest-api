@@ -11,7 +11,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
-
+using Catalog.Services;
 namespace restapi
 {
     public class Startup
@@ -26,7 +26,7 @@ namespace restapi
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-
+            services.AddSingleton<ICatalogServices, CatalogServices>();
             services.AddControllers();
             services.AddSwaggerGen(c =>
             {
