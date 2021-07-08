@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Catalog.Entities;
 
 
@@ -41,31 +42,34 @@ namespace Catalog.Services
             },
         };
 
-        public IEnumerable<Item> GetItems()
+        public async Task<IEnumerable<Item>> GetItemsAsync()
         {
-            return this.items;
+            return await Task.FromResult(this.items);
         }
 
-        public Item GetItem(Guid id)
+        public async Task<Item> GetItemAsync(Guid id)
         {
-            return this.items.Where(item => item.Id == id).SingleOrDefault();
+            return await Task.FromResult(this.items.Where(item => item.Id == id).SingleOrDefault());
         }
 
-        public void CreateItem(Item item)
+        public async Task CreateItemAsync(Item item)
         {
             this.items.Add(item);
+            await Task.CompletedTask;
         }
 
-        public void UpdateItem(Item item)
+        public async Task UpdateItemAsync(Item item)
         {
             var index = items.FindIndex(e => e.Id == item.Id);
             this.items[index] = item;
+            await Task.CompletedTask;
         }
 
-        public void DeleteItem(Guid id)
+        public async Task DeleteItemAsync(Guid id)
         {
             var index = this.items.FindIndex(e => e.Id == id);
             this.items.RemoveAt(index);
+            await Task.CompletedTask;
         }
     }
 }
