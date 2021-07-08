@@ -12,6 +12,12 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using Catalog.Services;
+using MongoDB.Driver;
+using Catalog.Settings;
+using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Serializers;
+using MongoDB.Bson;
+
 namespace restapi
 {
     public class Startup
@@ -26,7 +32,14 @@ namespace restapi
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddSingleton<ICatalogServices, CatalogServices>();
+            BsonSerializer.RegisterSerializer(new GuidSerializer(BsonType.String));
+            BsonSerializer.RegisterSerializer(new DateTimeOffsetSerializer(BsonType.String));
+            services.AddSingleton<IMongoClient>(ServiceProvider =>
+            {
+                var settings = Configuration.GetSection(nameof(MongoDbSettings)).Get<MongoDbSettings>();
+                return new MongoClient(settings.ConnectionString);
+            });
+            services.AddSingleton<ICatalogServices, MongoCatalogService>();
             services.AddControllers();
             services.AddSwaggerGen(c =>
             {
