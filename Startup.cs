@@ -13,10 +13,14 @@ using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using Catalog.Services;
 using MongoDB.Driver;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Catalog.Settings;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Bson;
+using System.Text.Json;
+using System.Net.Mime;
+using Microsoft.AspNetCore.Http;
 
 namespace restapi
 {
@@ -26,7 +30,6 @@ namespace restapi
         {
             Configuration = configuration;
         }
-
         public IConfiguration Configuration { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
@@ -34,10 +37,11 @@ namespace restapi
         {
             BsonSerializer.RegisterSerializer(new GuidSerializer(BsonType.String));
             BsonSerializer.RegisterSerializer(new DateTimeOffsetSerializer(BsonType.String));
+            var mongoDBSettings = Configuration.GetSection(nameof(MongoDbSettings)).Get<MongoDbSettings>();
+
             services.AddSingleton<IMongoClient>(ServiceProvider =>
             {
-                var settings = Configuration.GetSection(nameof(MongoDbSettings)).Get<MongoDbSettings>();
-                return new MongoClient(settings.ConnectionString);
+                return new MongoClient(mongoDBSettings.ConnectionString);
             });
             services.AddSingleton<ICatalogServices, MongoCatalogService>();
             services.AddControllers(options =>
@@ -48,6 +52,14 @@ namespace restapi
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "restapi", Version = "v1" });
             });
+
+            services.AddHealthChecks()
+                        .AddMongoDb(
+                            mongoDBSettings.ConnectionString,
+                            name: "mongodb",
+                            timeout: TimeSpan.FromSeconds(3),
+                            tags: new[] { "ready" }
+                        );
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -69,6 +81,33 @@ namespace restapi
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
+                endpoints.MapHealthChecks("/healthCheck/ready", new HealthCheckOptions
+                {
+                    Predicate = (check) => check.Tags.Contains("ready"),
+                    ResponseWriter = async (context, report) =>
+                    {
+                        var result = JsonSerializer.Serialize(
+                            new
+                            {
+                                status = report.Status.ToString(),
+                                checks = report.Entries.Select(entry => new
+                                {
+                                    name = entry.Key,
+                                    status = entry.Value.Status.ToString(),
+                                    execption = entry.Value.Exception != null ? entry.Value.Exception.Message : "none",
+                                    duration = entry.Value.Duration.ToString(),
+                                })
+                            }
+                        );
+                        context.Response.ContentType = MediaTypeNames.Application.Json;
+                        await context.Response.WriteAsync(result);
+                    }
+                });
+
+                endpoints.MapHealthChecks("/healthCheck/live", new HealthCheckOptions
+                {
+                    Predicate = (_) => false
+                });
             });
         }
     }
